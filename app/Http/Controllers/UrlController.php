@@ -21,24 +21,23 @@ class UrlController extends Controller
     }
 
     public function short(Request $request){
-        if(in_array($request->get('status'), ['never','60','120']))
+        if($old = (in_array($request->get('status'), ['never','60','120'])))
         {
             $short = $this->validate($request, [
                 'url'=> 'required|url'
             ]);
             $short = $this->generateShortURL();
 
-            if(in_array($request->get('status'), ['never'])){
-                $one_minute = NULL;
+            $old = $request->get('status');
 
+            if($old == 'never'){
+                $one_minute = null;
             };
-            if(in_array($request->get('status'), ['60'])){
-            $one_minute = (new Carbon('+5 hours'))->addMinute()->timestamp;
-
+            if($old == '60'){
+                $one_minute = (new Carbon('+5 hours'))->addMinute()->timestamp;
             };
-            if(in_array($request->get('status'), ['120'])){
+            if($old == '120'){
                 $one_minute = (new Carbon('+5 hours'))->addMinutes(2)->timestamp;
-
             };
 
             $minutes  = $one_minute;
@@ -60,7 +59,7 @@ class UrlController extends Controller
 
         if($minute->ex_time != null && $minute->ex_time < time() + 5*3600) {
 
-            return "sorry";
+            return "NOT FOUND";
         }else{
             $url = URLShort::whereShort($link)->first();
             $url->increment('visited');
